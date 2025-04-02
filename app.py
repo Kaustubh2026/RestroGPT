@@ -1,23 +1,32 @@
-from flask import Flask, request, jsonify, render_template
-import fitz  # PyMuPDF
 import os
+import fitz  # PyMuPDF
 import groq
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+from dotenv import load_dotenv
 
+# ✅ Load environment variables
+load_dotenv()
+
+# ✅ Initialize Flask app
 app = Flask(__name__, static_folder="static", template_folder="templates")
 CORS(app)
 
-# ✅ Load Groq API Key
+# ✅ Secure API Key (DO NOT hardcode API keys in code)
 GROQ_API_KEY = "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"
+if not GROQ_API_KEY:
+    raise ValueError("⚠️ GROQ_API_KEY is missing! Set it in the environment variables.")
+
 client = groq.Groq(api_key=GROQ_API_KEY)
 
 # ✅ Extract text from PDF
 def extract_text_from_pdf(pdf_path):
+    if not os.path.exists(pdf_path):
+        return "Menu not available."
+    
     doc = fitz.open(pdf_path)
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    return text
+    text = "".join(page.get_text() for page in doc)
+    return text.strip()
 
 # ✅ Load restaurant menu
 PDF_PATH = "restaurant-menu.pdf"
@@ -28,9 +37,8 @@ def home():
     return render_template("index.html")
 
 @app.route("/chat", methods=["POST"])
-@app.route("/chat", methods=["POST"])
 def chat():
-    user_input = request.json.get("message")
+    user_input = request.json.get("message", "").strip()
     
     if not user_input:
         return jsonify({"error": "No message provided"}), 400
@@ -40,7 +48,7 @@ def chat():
         
         try:
             response = client.chat.completions.create(
-                model="llama3-70b-8192",  # ✅ Use the new supported model
+                model="mixtral-8x7b-32768",  # ✅ Using an active model
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7
             )
@@ -52,6 +60,7 @@ def chat():
     
     return jsonify({"response": "❌ I can only answer questions related to the restaurant."})
 
-
+# ✅ Ensure the correct port for Vercel deployment
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.getenv("PORT", 8080))
+    app.run(host="0.0.0.0", port=port, debug=True)
