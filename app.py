@@ -48,7 +48,7 @@ def chat():
         
         try:
             response = client.chat.completions.create(
-                model="mixtral-8x7b-32768",  # ✅ Using an active model
+                model="llama3-70b-8192",  # ✅ Using an active model
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.7
             )
