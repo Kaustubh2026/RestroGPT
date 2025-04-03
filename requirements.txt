@@ -1,5 +1,6 @@
-﻿flask
+flask
 flask-cors
 python-dotenv
 groq
 pymupdf
+openai
