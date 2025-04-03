@@ -6,10 +6,10 @@
     <title>Restaurant Chatbot</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
-        
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: url("/api/placeholder/1600/900/?restaurant,food") no-repeat center center/cover;
+            background: url("/static/background.jpg") no-repeat center center/cover;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,7 +17,7 @@
             margin: 0;
             position: relative;
         }
-        
+
         body::before {
             content: "";
             position: absolute;
@@ -28,7 +28,7 @@
             background: linear-gradient(45deg, rgba(0, 0, 0, 0.85), rgba(73, 0, 130, 0.8));
             z-index: -1;
         }
-        
+
         .chat-container {
             width: 400px;
             background: rgba(18, 18, 30, 0.9);
@@ -39,14 +39,14 @@
             padding: 15px;
             border: 1px solid rgba(152, 0, 255, 0.3);
         }
-        
+
         h1 {
             color: #B14EFF;
             font-size: 22px;
             text-shadow: 0 0 10px rgba(152, 0, 255, 0.5);
             margin-bottom: 15px;
         }
-        
+
         .chat-box {
             height: 300px;
             overflow-y: auto;
@@ -59,7 +59,7 @@
             margin-bottom: 15px;
             border: 1px solid rgba(152, 0, 255, 0.2);
         }
-        
+
         .bot-message, .user-message {
             padding: 10px;
             border-radius: 10px;
@@ -67,7 +67,7 @@
             margin: 5px 0;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        
+
         .bot-message {
             background: linear-gradient(135deg, #6000B0, #9000E0);
             color: white;
@@ -76,7 +76,7 @@
             border-bottom-left-radius: 3px;
             text-align: left;
         }
-        
+
         .user-message {
             background: #333340;
             color: #e0e0e0;
@@ -85,13 +85,13 @@
             border-bottom-right-radius: 3px;
             text-align: left;
         }
-        
+
         .input-container {
             display: flex;
             gap: 10px;
             padding-top: 10px;
         }
-        
+
         input {
             flex: 1;
             padding: 10px;
@@ -103,12 +103,12 @@
             outline: none;
             transition: all 0.3s ease;
         }
-        
+
         input:focus {
             border-color: #B14EFF;
             box-shadow: 0 0 10px rgba(152, 0, 255, 0.4);
         }
-        
+
         button {
             background: linear-gradient(90deg, #6000B0, #9000E0);
             color: white;
@@ -120,54 +120,21 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        
+
         button:hover {
             background: linear-gradient(90deg, #7000C0, #A000F0);
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(152, 0, 255, 0.4);
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        /* Floating particles */
-        .floating-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .particle {
-            position: absolute;
-            background: rgba(152, 0, 255, 0.5);
-            border-radius: 50%;
-            animation: float linear infinite;
-        }
-        
-        @keyframes float {
-            0% {
-                transform: translateY(100vh) scale(0);
-                opacity: 0;
-            }
-            50% {
-                opacity: 0.5;
-            }
-            100% {
-                transform: translateY(-100px) scale(1);
-                opacity: 0;
-            }
-        }
     </style>
 </head>
 <body>
-    <div class="floating-particles" id="particles"></div>
-    
+
     <div class="chat-container">
         <h1>🍽️ Restaurant Chatbot</h1>
         <div class="chat-box" id="chat-box">
@@ -175,57 +142,46 @@
         </div>
         <div class="input-container">
             <input type="text" id="user-input" placeholder="Type your question...">
-            <button onclick="sendMessage()">Send</button>
+            <button id="send-btn">Send</button>
         </div>
     </div>
 
     <script>
-        // Create floating particles
-        const particlesContainer = document.getElementById('particles');
-        const particleCount = 12;
-        
-        for (let i = 0; i < particleCount; i++) {
-            const size = Math.random() * 8 + 4;
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            particle.style.width = `${size}px`;
-            particle.style.height = `${size}px`;
-            particle.style.left = `${Math.random() * 100}%`;
-            particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
-            particle.style.animationDelay = `${Math.random() * 5}s`;
-            particlesContainer.appendChild(particle);
-        }
-        
-        function sendMessage() {
-            let userMessage = document.getElementById("user-input").value;
-            if (!userMessage) return;
-
-            let chatBox = document.getElementById("chat-box");
-            let userBubble = `<div class="user-message">🧑‍💬 ${userMessage}</div>`;
-            chatBox.innerHTML += userBubble;
-            document.getElementById("user-input").value = "";
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            // Keeping your original fetch functionality
-            fetch("/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: userMessage }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                let botBubble = `<div class="bot-message">🤖 ${data.response}</div>`;
-                chatBox.innerHTML += botBubble;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
-        }
-        
-        // Add ability to send message with Enter key
-        document.getElementById("user-input").addEventListener("keypress", function(event) {
+        document.getElementById("send-btn").addEventListener("click", sendMessage);
+        document.getElementById("user-input").addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 sendMessage();
             }
         });
+
+        function sendMessage() {
+            let userInput = document.getElementById("user-input").value.trim();
+            if (!userInput) return;
+
+            let chatBox = document.getElementById("chat-box");
+            let userMessage = `<div class="user-message">🧑‍💬 ${userInput}</div>`;
+            chatBox.innerHTML += userMessage;
+            document.getElementById("user-input").value = "";
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let botMessage = `<div class="bot-message">🤖 ${data.response}</div>`;
+                chatBox.innerHTML += botMessage;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                let errorMessage = `<div class="bot-message">❌ Oops! Something went wrong.</div>`;
+                chatBox.innerHTML += errorMessage;
+            });
+        }
     </script>
+
 </body>
 </html>
